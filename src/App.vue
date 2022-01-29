@@ -1,8 +1,18 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <Header />
 
-    <Sidebar />
+    <q-linear-progress
+      v-show="hasHttpRequestWaiting"
+      indeterminate
+      stripe
+      class="fixed z-top"
+      color="red"
+      :animation-speed="500"
+    />
+
+    <Header v-if="showAppLayout" />
+
+    <Sidebar v-if="showAppLayout" />
 
     <q-page-container>
       <router-view />
@@ -14,10 +24,11 @@ import { computed, defineComponent, ref } from 'vue'
 import Sidebar from 'layouts/Sidebar.vue'
 import Header from 'layouts/Header.vue'
 import { useUserStore } from 'src/stores/users'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { axiosInstance } from 'boot/axios'
 import { userProfile } from 'src/types/interfaces'
 import urls from 'src/urls'
+import { useGeneralStore } from 'src/stores/general'
 
 export default defineComponent({
   name: 'App',
@@ -28,7 +39,12 @@ export default defineComponent({
   setup() {
     const leftDrawerOpen = ref(false)
     const userStore = useUserStore()
+    const generalStore = useGeneralStore()
+
     const router = useRouter()
+    const route = useRoute()
+
+    const hasHttpRequestWaiting = computed(() => generalStore.hasHttpRequestWaiting)
 
     const isAuthenticated = computed(() => userStore.isAuthenticated)
     if (!isAuthenticated.value) {
@@ -42,12 +58,21 @@ export default defineComponent({
       })
     }
 
+    const showAppLayout = computed(() => {
+      const noAuthRoutes = ['404', 'Login', 'justRain']
+      return isAuthenticated.value && !noAuthRoutes.includes(String(route.name))
+    })
+
+    function toggleLeftDrawer() {
+      leftDrawerOpen.value = !leftDrawerOpen.value
+    }
+
     return {
       leftDrawerOpen,
-      toggleLeftDrawer() {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      },
+      toggleLeftDrawer,
       isAuthenticated,
+      showAppLayout,
+      hasHttpRequestWaiting
     }
   },
 })

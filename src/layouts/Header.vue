@@ -1,5 +1,5 @@
 <template>
-  <q-header elevated>
+  <q-header>
     <q-toolbar>
       <q-btn
         flat
@@ -29,8 +29,10 @@
 
 <script lang="ts">
 import { computed, ref } from 'vue'
-import { useUserStore } from '../stores/users'
 import { useRouter } from 'vue-router'
+import {mapState} from 'pinia'
+import { useUserStore } from '../stores/users'
+import {useGeneralStore} from 'src/stores/general'
 import { sidebarOpen, generalState } from 'layouts/composables'
 import { useQuasar } from 'quasar'
 import ThemeToggle from 'layouts/ThemeToggle.vue'
@@ -41,7 +43,7 @@ export default {
     ThemeToggle
   },
   setup() {
-    const $q = useQuasar()
+    const q = useQuasar()
 
     const userStore = useUserStore()
     const router = useRouter()
@@ -49,8 +51,6 @@ export default {
     const isAuthenticated = computed(() => userStore.isAuthenticated)
 
     function toggleLeftDrawer() {
-      // sidebarOpen.value = !sidebarOpen.value
-      // console.log(typeof generalState.sideOpen)
       generalState.sideOpen = !generalState.sideOpen
     }
 
@@ -63,7 +63,7 @@ export default {
       toggleLeftDrawer,
       isAuthenticated,
       handleLogout,
-      $q
+      q
     }
   }
 }

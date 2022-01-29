@@ -1,12 +1,12 @@
 <template>
   <q-btn
-    v-if="$q.dark.isActive"
+    v-if="q.dark.isActive"
     round
     flat
     text-color="amber"
     icon="light_mode"
     class="q-ma-sm bg-transparent"
-    @click="$q.dark.toggle"
+    @click="q.dark.toggle"
   />
   <q-btn
     v-else
@@ -15,7 +15,7 @@
     text-color="black"
     icon="dark_mode"
     class="q-ma-sm bg-transparent"
-    @click="$q.dark.toggle"
+    @click="q.dark.toggle"
   />
 </template>
 
@@ -25,9 +25,9 @@ import { useQuasar } from 'quasar'
 export default {
   name: 'ThemeToggle',
   setup() {
-    const $q = useQuasar()
+    const q = useQuasar()
 
-    return { $q }
+    return { q }
   }
 }
 </script>

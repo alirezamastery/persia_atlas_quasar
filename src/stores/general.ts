@@ -17,8 +17,8 @@ export const useGeneralStore = defineStore({
     // vuetifyRTL: true,
   }),
   getters: {
-    isAuthenticated(): boolean {
-      return this.httpRequestQueue > 2
+    hasHttpRequestWaiting(): boolean {
+      return this.httpRequestQueue > 0
     },
   },
   actions: {

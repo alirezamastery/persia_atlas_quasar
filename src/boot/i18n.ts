@@ -7,6 +7,8 @@ const defaultLocale = 'fa'
 
 export default boot(({ app }) => {
   const i18n = createI18n({
+    legacy: false,
+    globalInjection: true,
     locale: defaultLocale,
     messages,
   })
