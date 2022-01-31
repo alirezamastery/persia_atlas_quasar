@@ -1,51 +1,45 @@
 <template>
-  <q-table
-    :title="title"
-    :rows="data.items"
-    :columns="columns"
-    :row-key="itemKey"
-    :dense="denseRows"
-    :no-data-label="$t('general.noItemsFound')"
-    :pagination="paginationOptions"
-  >
-    <template v-slot:body="props">
+  <q-card class="q-pa-md">
 
-      <q-tr :props="props">
-        <q-td
-          v-for="column in columns"
-          :key="column.name"
-          :props="props"
-        >
-          <slot
-            :name="`col-${column.name}`"
-            v-bind:props="props"
-            v-bind:data="data"
+    <q-table
+      :title="title"
+      :rows="data.items"
+      :columns="columns"
+      :row-key="itemKey"
+      :dense="denseRows"
+      :no-data-label="$t('general.noItemsFound')"
+      :pagination="pagination"
+      :filter="filter"
+      @request="handleRequest"
+    >
+      <template v-slot:body="props">
+
+        <q-tr :props="props">
+          <q-td
+            v-for="column in columns"
+            :key="column.name"
+            :props="props"
           >
-            {{ props.row[column.field] }}
-          </slot>
-        </q-td>
-      </q-tr>
-    </template>
-    <!--    <template-->
-    <!--      v-for="(column) in columns"-->
-    <!--      v-slot:[`body-cell-${column.name}`]="props"-->
-    <!--    >-->
-    <!--      <slot-->
-    <!--        :name="`col-${column.name}`"-->
-    <!--        v-bind:props="props"-->
-    <!--        v-bind:data="data"-->
-    <!--      >-->
-    <!--        {{column.name}}-->
-    <!--      </slot>-->
-    <!--    </template>-->
-
-  </q-table>
+            <slot
+              :name="`col-${column.name}`"
+              :props="props"
+              :data="data"
+            >
+              {{ props.row[column.field] }}
+            </slot>
+          </q-td>
+        </q-tr>
+      </template>
+    </q-table>
+  </q-card>
 </template>
 
 
 <script setup lang="ts">
 import { ref, reactive, defineEmits, defineProps } from 'vue'
 import { axiosInstance } from 'boot/axios'
+import { QTableProps } from 'quasar'
+import { QTableRequest } from 'src/types/types'
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -67,8 +61,11 @@ const pageSizeOptions = ref([10, 20, 50, 100])
 const page = ref(1)
 const queries = ref('')
 const totalPaginationVisible = ref(7)
-const paginationOptions = ref({
-  rowsPerPage: 20,
+const filter = ref('')
+const pagination = ref({
+  page: 1,
+  rowsPerPage: 3,
+  rowsNumber: 10,
 })
 const data = ref({
   items: [],
@@ -99,22 +96,30 @@ function handleUpdate(): void {
 function handlePageSelect(event: number): void {
   console.log('handlePageSelect', event)
   page.value = event
-  reFetchData()
+  fetchData()
 }
 
-function reFetchData(): void {
+function fetchData(): void {
   const url = props.apiRoot + constructQuery()
   axiosInstance.get(url)
     .then(res => {
       console.log('reFetchData | response', res)
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       data.value = res.data
+      pagination.value.rowsNumber = Number(res.data.count)
     })
     .catch(err => {
       console.log('reFetchData | error', err)
     })
 }
 
-reFetchData()
+function handleRequest(props: any): void {
+  // console.log('event')
+  console.log('handleRequest', props)
+  const { page, rowsPerPage, sortBy, descending } = props.pagination
+  const filter = props.filter
+}
+
+fetchData()
 
 </script>
